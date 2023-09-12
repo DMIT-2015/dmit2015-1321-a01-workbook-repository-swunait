@@ -1,6 +1,9 @@
 package dmit2015.model;
 
 
+import lombok.Getter;
+import lombok.Setter;
+
 /**
  *This class models a Circle shape.
  *
@@ -9,15 +12,16 @@ package dmit2015.model;
  */
 public class Circle {
 
+    @Getter @Setter
     private double radius;
 
-    public double getRadius() {
-        return radius;
-    }
-
-    public void setRadius(double radius) {
-        this.radius = radius;
-    }
+//    public double getRadius() {
+//        return radius;
+//    }
+//
+//    public void setRadius(double radius) {
+//        this.radius = radius;
+//    }
 
     public Circle() {
         this.radius = 1;
