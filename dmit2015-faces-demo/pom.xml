@@ -19,6 +19,13 @@
 
     <dependencies>
 
+        <dependency>
+            <groupId>net.datafaker</groupId>
+            <artifactId>datafaker</artifactId>
+            <version>2.0.1</version>
+        </dependency>
+
+
         <!-- Dependencies for ALL specifications from Eclipse Microprofile  -->
         <dependency>
             <groupId>org.eclipse.microprofile</groupId>
@@ -144,8 +151,6 @@
                         <arg>-agentlib:jdwp=transport=dt_socket,address=8787,server=y,suspend=n</arg>
                     </jvmArguments>
 
-                    <!-- Build a bootable JAR for cloud environment. -->
-                    <cloud />
                 </configuration>
                 <executions>
                     <execution>

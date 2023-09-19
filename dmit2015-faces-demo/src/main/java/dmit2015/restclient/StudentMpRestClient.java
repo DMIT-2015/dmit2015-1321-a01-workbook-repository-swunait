@@ -41,7 +41,7 @@ import java.util.LinkedHashMap;
 @RegisterRestClient(baseUri = "https://dmit2015-swu-fbp-default-rtdb.firebaseio.com")
 public interface StudentMpRestClient {
 
-    String DOCUMENT_URL = "/Student";
+    String DOCUMENT_URL = "/students";
 
     @POST
     @Path(DOCUMENT_URL + ".json")
