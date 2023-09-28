@@ -49,9 +49,20 @@
                 <p:submenu label="Students" icon="pi pi-file">
                     <p:menuitem value="List" icon="pi pi-list"
                                 url="#{request.contextPath}/students/index.xhtml"/>
-<!--                    <p:menuitem value="Create" icon="pi pi-plus"-->
-<!--                                url="#{request.contextPath}/students/create.xhtml"/>-->
+                    <p:menuitem value="Create" icon="pi pi-plus"
+                                url="#{request.contextPath}/students/create.xhtml"/>
                 </p:submenu>
+
+                <c:if test="${empty firebaseLoginSession.username}">
+                    <p:menuitem
+                            value="Login"
+                            action="/firebaseLogin" />
+                </c:if>
+                <c:if test="${not empty firebaseLoginSession.username}">
+                    <p:menuitem
+                            value="Logout #{firebaseLoginSession.username}"
+                            action="#{firebaseLogout.submit}" />
+                </c:if>
 
             </p:menubar>
         </h:form>

@@ -1,7 +1,7 @@
 package dmit2015.faces;
 
 import dmit2015.restclient.Student;
-import dmit2015.restclient.StudentMpRestClient;
+import dmit2015.restclient.StudentAuthMpRestClient;
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
@@ -17,7 +17,10 @@ public class StudentCreateView {
 
     @Inject
     @RestClient
-    private StudentMpRestClient _studentMpRestClient;
+    private StudentAuthMpRestClient _studentMpRestClient;
+
+    @Inject
+    private FirebaseLoginSession _firebaseLoginSession;
 
     @Getter
     private Student newStudent = new Student();
@@ -25,7 +28,9 @@ public class StudentCreateView {
     public String onCreateNew() {
         String nextPage = null;
         try {
-            JsonObject responseBody = _studentMpRestClient.create(newStudent);
+            String token = _firebaseLoginSession.getFirebaseUser().getIdToken();
+            String userUID = _firebaseLoginSession.getFirebaseUser().getLocalId();
+            JsonObject responseBody = _studentMpRestClient.create(userUID, newStudent, token);
             String documentKey = responseBody.getString("name");
             newStudent = new Student();
             Messages.addFlashGlobalInfo("Create was successful. {0}", documentKey);

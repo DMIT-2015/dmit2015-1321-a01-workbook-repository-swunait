@@ -1,16 +1,14 @@
 package dmit2015.faces;
 
 import dmit2015.restclient.Student;
-import dmit2015.restclient.StudentMpRestClient;
-
-import lombok.Getter;
-import lombok.Setter;
-
+import dmit2015.restclient.StudentAuthMpRestClient;
 import jakarta.annotation.PostConstruct;
 import jakarta.faces.annotation.ManagedProperty;
 import jakarta.faces.view.ViewScoped;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
+import lombok.Getter;
+import lombok.Setter;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 import org.omnifaces.util.Faces;
 
@@ -26,7 +24,10 @@ public class StudentDetailsView implements Serializable {
 
     @Inject
     @RestClient
-    private StudentMpRestClient _studentMpRestClient;
+    private StudentAuthMpRestClient _studentMpRestClient;
+
+    @Inject
+    private FirebaseLoginSession _firebaseLoginSession;
 
     @Inject
     @ManagedProperty("#{param.editId}")
@@ -39,7 +40,9 @@ public class StudentDetailsView implements Serializable {
 
     @PostConstruct
     public void init() {
-        existingStudent = _studentMpRestClient.findById(editId);
+        String token = _firebaseLoginSession.getFirebaseUser().getIdToken();
+        String userUID = _firebaseLoginSession.getFirebaseUser().getLocalId();
+        existingStudent = _studentMpRestClient.findById(userUID,editId,token);
         if (existingStudent == null) {
             Faces.redirect(Faces.getRequestURI().substring(0, Faces.getRequestURI().lastIndexOf("/")) + "/index.xhtml");
         }
