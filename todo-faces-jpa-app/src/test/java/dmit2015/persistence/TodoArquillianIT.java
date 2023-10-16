@@ -76,21 +76,42 @@ public class TodoArquillianIT { // The class must be declared as public
     @BeforeEach
     void beforeEachTestMethod() {
         // Code to execute before each method such as creating the test data
+        if (_todoRepository.count() == 0) {
+            Todo todo1 = new Todo();
+            todo1.setTask("Task 1");
+            _todoRepository.add(todo1);
+
+            Todo todo2 = new Todo();
+            todo2.setTask("Task 2");
+            todo2.setDone(false);
+            _todoRepository.add(todo2);
+
+            Todo todo3 = new Todo();
+            todo3.setTask("Task 3");
+            todo3.setDone(true);
+            _todoRepository.add(todo3);
+        }
     }
 
     @AfterEach
     void afterEachTestMethod() {
-        // code to execute after each test method such as deleteing the test data
+        // code to execute after each test method such as deleting the test data
+//        _todoRepository.deleteAll();
     }
 
 
-    @Order(10)
+    @Order(1)
     @ParameterizedTest
     // TODO Changed the expected results
     @CsvSource(value = {
-            "expectedSize,expectedFirstRecordProperty1,expectedFirstRecordProperty2,expectedLastRecordProperty1,expectedLastRecordProperty2"
+            "3,Task 1,false,Task 3,true"
     })
-    void findAll_Size_BoundaryValues(int expectedSize, String expectedFirstRecordProperty1, String expectedFirstRecordProperty2, String expectedLastRecordProperty1, String expectedLastRecordProperty2) {
+    void findAll_Size_BoundaryValues(
+            int expectedSize,
+            String expectedFirstTask,
+            boolean expectedFirstDone,
+            String expectedLastTask,
+            boolean expectedLastDone) {
         assertThat(_todoRepository).isNotNull();
         // Arrange and Act
         List<Todo> todoList = _todoRepository.findAll();
@@ -101,14 +122,14 @@ public class TodoArquillianIT { // The class must be declared as public
         // Get the first entity and compare with expected results
         var firstTodo = todoList.get(0);
         // TODO Assert that each property match expected results for the first record
-        //assertThat(firstTodo.getProperty1()).isEqualTo(expectedFirstRecordProperty1);
-        //assertThat(firstTodo.getProperty2()).isEqualTo(expectedFirstRecordProperty2);
+        assertThat(firstTodo.getTask()).isEqualTo(expectedFirstTask);
+        assertThat(firstTodo.isDone()).isEqualTo(expectedFirstDone);
 
         // Get the last entity and compare with expected results
         var lastTodo = todoList.get(todoList.size() - 1);
         // TODO Assert that each property match expected results for the last record
-        //assertThat(lastTodo.getProperty1()).isEqualTo(expectedLastRecordProperty1);
-        //assertThat(lastTodo.getProperty2()).isEqualTo(expectedLastRecordProperty2);
+        assertThat(lastTodo.getTask()).isEqualTo(expectedLastTask);
+        assertThat(lastTodo.isDone()).isEqualTo(expectedLastDone);
 
     }
 
@@ -117,10 +138,10 @@ public class TodoArquillianIT { // The class must be declared as public
     @ParameterizedTest
     // TODO Change the value below
     @CsvSource(value = {
-            "primaryKey,expectedProperty1Value,expectedProperty2Value",
-            "primaryKey,expectedProperty1Value,expectedProperty2Value"
+            "2,Task 2,false",
+            "3,Task 3,true"
     })
-    void findById_ExistingId_IsPresent(Long todoId, String expectedProperty1, String expectedProperty2) {
+    void findById_ExistingId_IsPresent(Long todoId, String expectedTask, boolean expectedDone) {
         // Arrange and Act
         Optional<Todo> optionalTodo = _todoRepository.findById(todoId);
         assertThat(optionalTodo.isPresent())
@@ -131,13 +152,15 @@ public class TodoArquillianIT { // The class must be declared as public
         assertThat(existingTodo)
                 .isNotNull();
         // TODO Assert that each property matches the expected result
-        // assertThat(existingTodo.getProperty1())
-        //     .isEqualTo(expectedProperty1);
+        assertThat(existingTodo.getTask())
+             .isEqualTo(expectedTask);
+        assertThat(existingTodo.isDone())
+            .isEqualTo(expectedDone);
 
     }
 
 
-    @Order(1)
+    @Order(3)
     @ParameterizedTest
     // TODO Change the value below
     @CsvSource(value = {
@@ -151,7 +174,7 @@ public class TodoArquillianIT { // The class must be declared as public
         newTodo.setTask(task);
         newTodo.setDone(done);
 
-//        _beanManagedTransaction.begin();
+        _beanManagedTransaction.begin();
 
         try {
             // Act
@@ -165,7 +188,7 @@ public class TodoArquillianIT { // The class must be declared as public
         } catch (Exception ex) {
             fail("Failed to add entity with exception %s", ex.getMessage());
         } finally {
-//            _beanManagedTransaction.rollback();
+            _beanManagedTransaction.rollback();
         }
 
     }
@@ -175,10 +198,10 @@ public class TodoArquillianIT { // The class must be declared as public
     @ParameterizedTest
     // TODO Change the value below
     @CsvSource(value = {
-            "PrimaryKey, Property1Value, Property2Value, Property3Value",
-            "PrimaryKey, Property1Value, Property2Value, Property3Value",
+            "1, Buy Venti size Coffee from Starbucks,true",
+            "2, Drink Coffee,true",
     })
-    void update_ExistingId_UpdatedData(Long todoId, String property1, String property2, String property3) throws SystemException, NotSupportedException {
+    void update_ExistingId_UpdatedData(Long todoId, String task, boolean done) throws SystemException, NotSupportedException {
         // Arrange
         Optional<Todo> optionalTodo = _todoRepository.findById(todoId);
         assertThat(optionalTodo.isPresent()).isTrue();
@@ -188,8 +211,8 @@ public class TodoArquillianIT { // The class must be declared as public
 
         // Act
         // TODO Uncomment code below and assign new value to each property
-        // existingTodo.setProperty1(property1);
-        // existingTodo.setProperty2(property2);
+        existingTodo.setTask(task);
+        existingTodo.setDone(done);
 
         _beanManagedTransaction.begin();
 
@@ -199,7 +222,7 @@ public class TodoArquillianIT { // The class must be declared as public
             // Assert
             assertThat(existingTodo)
                     .usingRecursiveComparison()
-                    // .ignoringFields("field1", "field2")
+                    .ignoringFields("updateTime", "version")
                     .isEqualTo(updatedTodo);
         } catch (Exception ex) {
             fail("Failed to update entity with exception %s", ex.getMessage());
@@ -214,8 +237,8 @@ public class TodoArquillianIT { // The class must be declared as public
     @ParameterizedTest
     // TODO Change the value below
     @CsvSource(value = {
-            "primaryKey1",
-            "primaryKey2",
+            "1",
+            "3",
     })
     void deleteById_ExistingId_DeletedData(Long todoId) throws SystemException, NotSupportedException {
         _beanManagedTransaction.begin();
@@ -241,8 +264,8 @@ public class TodoArquillianIT { // The class must be declared as public
     @ParameterizedTest
     // TODO Change the value below
     @CsvSource(value = {
-            "primaryKey",
-            "primaryKey"
+            "123",
+            "321"
     })
     void findById_NonExistingId_IsEmpty(Long todoId) {
         // Arrange and Act
@@ -259,16 +282,15 @@ public class TodoArquillianIT { // The class must be declared as public
     @ParameterizedTest
     // TODO Change the value below
     @CsvSource(value = {
-            "Invalid Property1Value, Property2Value, Property3Value, ExpectedExceptionMessage",
-            "Property1Value, Invalid Property2Value, Property3Value, ExpectedExceptionMessage",
+            "   ,true,Task cannot be blank",
+            "null,false,Task cannot be blank",
     }, nullValues = {"null"})
-    void create_beanValidation_throwsException(String property1, String property2, String property3, String expectedExceptionMessage) throws SystemException, NotSupportedException {
+    void create_beanValidation_throwsException(String task, boolean done, String expectedExceptionMessage) throws SystemException, NotSupportedException {
         // Arrange
         Todo newTodo = new Todo();
         // TODO Change the code below to set each property
-        // newTodo.setProperty1(property1);
-        // newTodo.setProperty2(property2);
-        // newTodo.setProperty3(property3);
+        newTodo.setTask(task);
+        newTodo.setDone(done);
 
         _beanManagedTransaction.begin();
         try {
