@@ -3,15 +3,12 @@ package dmit2015.entity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
-import java.util.Collection;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.Set;
 
 @Entity
 //@Table(schema = "CustomSchemaName", name="CustomTableName")
@@ -72,24 +69,20 @@ public class Todo implements Serializable {
         String[] tokens = line.split(DELIMITER, -1);  // The -1 limit allows for any number of fields and not discard trailing empty fields
         /*
          * The order of the columns are:
-         * 0 - column1
-         * 1 - column2
+         * 0 - task
+         * 1 - done
          * 2 - column3
          * 3 - column4
          */
-        if (tokens.length == 5) {
+        if (tokens.length == 2) {
             Todo parsedTodo = new Todo();
 
             try {
-                // String stringColumnValue = tokens[0].replaceAll("\"","");
-                // LocalDate dateColumnValue = tokens[0].isBlank() ? null : LocalDate.parse(tokens[0]);
-                // BigDecimal decimalColumnValue = tokens[0].isBlank() ? null : BigDecimal.valueOf(Double.parseDouble(tokens[0]));
-                // Integer IntegerColumnValue = tokens[0].isBlank() ? null : Integer.valueOf(tokens[0]);
-                // Double DoubleColumnValue = tokens[0].isBlank() ? null : Double.valueOf(tokens[0]);
-                // int intColumnValue = tokens[0].isBlank() ? 0 : Integer.parseInt(tokens[0]);
-                // double doubleColumnValue = tokens[0].isBlank() ? 0 : Double.parseDouble(tokens[0]);
+                 String task = tokens[0].replaceAll("\"","");
+                 boolean done = Boolean.parseBoolean(tokens[1]);
 
-                // parsedTodo.setProperty1(column1Value);
+                 parsedTodo.setTask(task);
+                 parsedTodo.setDone(done);
 
                 optionalTodo = Optional.of(parsedTodo);
             } catch (Exception ex) {
