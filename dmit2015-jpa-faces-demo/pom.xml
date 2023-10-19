@@ -187,7 +187,7 @@
                 <artifactId>wildfly-jar-maven-plugin</artifactId>
                 <version>10.0.0.Final</version>
                 <configuration>
-                    <feature-pack-location>wildflyw@maven(org.jboss.universe:community-universe)#29.0.1.Final</feature-pack-location>
+                    <feature-pack-location>wildfly@maven(org.jboss.universe:community-universe)#29.0.1.Final</feature-pack-location>
                     <!--                    <feature-pack-location>wildfly-preview@maven(org.jboss.universe:community-universe)</feature-pack-location>-->
                     <layers>
                         <!-- https://docs.wildfly.org/29/Bootable_Guide.html#wildfly_layers -->
