@@ -75,8 +75,11 @@ public class CountryEditView implements Serializable {
         try {
             // Find the Region containing the selectedRegionId
             if (selectedRegionId != null) {
-                Region selectedRegion = _regionRepository.getReference(selectedRegionId);
-                existingCountry.setRegionsByRegionId(selectedRegion);
+//                Region selectedRegion = _regionRepository.getReference(selectedRegionId);
+//                existingCountry.setRegionsByRegionId(selectedRegion);
+                Optional<Region> optionalRegion = _regionRepository.findById(selectedRegionId);
+                optionalRegion.ifPresent(selectedRegion -> existingCountry.setRegionsByRegionId(selectedRegion));
+
             } else {
                 existingCountry.setRegionsByRegionId(null);
             }

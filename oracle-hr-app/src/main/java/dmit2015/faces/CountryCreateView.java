@@ -16,6 +16,7 @@ import jakarta.inject.Named;
 
 import java.math.BigInteger;
 import java.util.List;
+import java.util.Optional;
 
 @Named("currentCountryCreateView")
 @RequestScoped
@@ -51,8 +52,11 @@ public class CountryCreateView {
             } else {
                 // Find the Region containing the selectedRegionId
                 if (selectedRegionId != null) {
-                    Region selectedRegion = _regionRepository.getReference(selectedRegionId);
-                    newCountry.setRegionsByRegionId(selectedRegion);
+//                    Region selectedRegion = _regionRepository.getReference(selectedRegionId);
+//                    newCountry.setRegionsByRegionId(selectedRegion);
+                    Optional<Region> optionalRegion = _regionRepository.findById(selectedRegionId);
+                    optionalRegion.ifPresent(selectedRegion -> newCountry.setRegionsByRegionId(selectedRegion));
+
                 } else {
                     newCountry.setRegionsByRegionId(null);
                 }
