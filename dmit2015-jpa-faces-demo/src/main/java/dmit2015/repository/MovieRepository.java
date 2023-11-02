@@ -1,21 +1,33 @@
 package dmit2015.repository;
 
 import dmit2015.entity.Movie;
+import dmit2015.security.MovieRepositorySecurityInterceptor;
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+import jakarta.interceptor.Interceptors;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
+import jakarta.security.enterprise.SecurityContext;
 import jakarta.transaction.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 @ApplicationScoped
+@Interceptors({MovieRepositorySecurityInterceptor.class})
 public class MovieRepository {
+
+    @Inject
+    private SecurityContext _securityContext;
     @PersistenceContext //(unitName = "h2database-jpa-pu") // unitName is optional if persistence.xml contains only one persistence-unit
     private EntityManager em;
 
     @Transactional
     public void add(Movie newMovie) {
+        String username = _securityContext.getCallerPrincipal().getName();
+        newMovie.setUsername(username);
+
         em.persist(newMovie);
     }
 
@@ -68,8 +80,20 @@ public class MovieRepository {
     }
 
     public List<Movie> findAll() {
-        return em.createQuery("SELECT m FROM Movie m ", Movie.class)
-                .getResultList();
+        List<Movie> movies = new ArrayList<>();
+        // Authenticated users with the Sales can only view movies they have created
+        if (_securityContext.isCallerInRole("Sales")) {
+            String username = _securityContext.getCallerPrincipal().getName();
+            movies = em.createQuery("SELECT m FROM Movie m WHERE m.username = :usernameValue", Movie.class)
+                    .setParameter("usernameValue", username)
+                    .getResultList();
+        } else {
+            movies = em.createQuery("SELECT m FROM Movie m ", Movie.class)
+                    .getResultList();
+        }
+
+        return movies;
+
     }
 
     public List<Movie> findAllOrderByTitle() {
